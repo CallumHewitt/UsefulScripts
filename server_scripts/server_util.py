@@ -27,7 +27,8 @@ def sudo_user_commands(username, password):
     return [
         f'echo "{username}:{password}::::/home/{username}:/bin/bash" | newusers',
         f'rsync --archive --chown={username}:{username} ~/.ssh /home/{username}',
-        f'usermod -aG sudo {username}' 
+        f'usermod -aG sudo {username}',
+        f'echo "{username} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers'
     ]
 
 def ufw_default_commands(incoming_rule, outgoing_rule):

@@ -7,8 +7,7 @@ def setup_server():
 
     # Setup sudo user
     sudo_user_config = config[SUDO_USER_FIELD]
-    username = sudo_user_config[USERNAME_FIELD]
-    commands += sudo_user_commands(username, sudo_user_config[PASSWORD_FIELD])
+    commands += sudo_user_commands(sudo_user_config[USERNAME_FIELD], sudo_user_config[PASSWORD_FIELD])
 
     # Configure firewall
     ufw_config = config[UFW_FIELD]
@@ -20,7 +19,7 @@ def setup_server():
     # Install starters
     starters = config.get(STARTERS_FIELD)
     if (starters != None):
-        for start_commands in list(map(lambda name: starter_commands(name, username), starters)):
+        for start_commands in list(map(lambda name: starter_commands(name, config), starters)):
             commands += start_commands
 
     # Run commands

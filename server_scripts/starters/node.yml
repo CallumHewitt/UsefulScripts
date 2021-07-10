@@ -1,5 +1,27 @@
 packages:
 commands:
-  - curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -
-  - sudo apt-get install -y nodejs
+  - curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
+  - bash nodesource_setup.sh
+  - apt install -y nodejs
+  - apt install -y build-essential
+  - npm install pm2@latest -g
+  - mkdir -p node_apps/example
+  - >
+    echo "
+      const http = require('http');
 
+      const hostname = 'localhost';
+      const port = 3000;
+
+      const server = http.createServer((req, res) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Hello World!\n');
+      });
+
+      server.listen(port, hostname, () => {
+        console.log('Server running at http://' + hostname + ':' + port + '/');
+      });
+    " > node_apps/example/hello.js
+  - rsync --archive --chown=$SUDO_USER:$SUDO_USER node_apps /home/$SUDO_USER
+  - rm -r node_apps

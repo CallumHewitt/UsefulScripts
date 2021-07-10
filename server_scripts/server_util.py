@@ -4,6 +4,8 @@ import sys
 from fabric import Connection
 
 HOSTNAME_FIELD = 'hostname'
+DOMAIN_FIELD = 'domain'
+EMAIL_FIELD = 'email'
 SSH_FIELD = 'ssh'
 KEY_LOCATION_FIELD = 'key_location'
 KEY_PASSPHRASE_FIELD = 'key_passphrase'
@@ -36,37 +38,41 @@ def ufw_default_commands(incoming_rule, outgoing_rule):
     return [
         f'ufw default {incoming_rule} incoming',
         f'ufw default {outgoing_rule} outgoing',
-        'ufw allow ssh',
+        'ufw allow OpenSSH',
         'yes | ufw enable'
     ]
 
 def packages_update_commands():
     return [
-        'apt-get update',
-        'apt-get --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade',
-        'apt-get --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade',
-        'apt-get --yes autoremove',
-        'apt-get --yes autoclean'
+        'apt update',
+        'apt --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" upgrade',
+        'apt --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" dist-upgrade',
+        'apt --yes autoremove',
+        'apt --yes autoclean'
     ]
 
-def starter_commands(starter_name, sudo_user):
+def starter_commands(starter_name, config):
     starter_config = get_starter_config(starter_name)
-    print(starter_config)
-    commands = []
+    commands = [ 'cd ~' ]
     packages = starter_config[PACKAGES_FIELD]
     if (packages != None):
-        commands += list(map(lambda pkg: f'apt-get install -y {pkg}', starter_config[PACKAGES_FIELD]))
-    if (commands != None):
-        raw_commands = starter_config[COMMANDS_FIELD]
-        if (sudo_user != None):
-            commands += list(map(lambda command: command.replace('$SUDO_USER', sudo_user), raw_commands))
-        else:
-            commands += raw_commands
+        commands += list(map(lambda pkg: f'apt install -y {pkg}', starter_config[PACKAGES_FIELD]))
+    
+    commands += starter_config[COMMANDS_FIELD]
+    commands = replace_command_template(commands, "SUDO_USER", config[SUDO_USER_FIELD][USERNAME_FIELD])
+    commands = replace_command_template(commands, "DOMAIN", config.get(DOMAIN_FIELD))
+    commands = replace_command_template(commands, "EMAIL", config.get(EMAIL_FIELD))
     return commands
 
 def get_starter_config(name):
     with open(f'starters/{name}.yml', 'r') as stream:
         return yaml.safe_load(stream)
+
+def replace_command_template(commands, template, replacement):
+    if (replacement != None):
+        return list(map(lambda command: command.replace(f'${template}', replacement), commands))
+    else:
+        return commands
 
 def run_commands(commands, hostname, ssh_key_location, ssh_key_passphrase):
     configure_logging()

@@ -21,6 +21,10 @@ The required fields for each script are given in their respective documentation 
 ```yml
 # Hostname of the server to be configured
 hostname: '192.168.0.256'
+# The DNS domain name of the server
+domain: 'example.com'
+# The email address to use for starters that require an email address to sign up
+email: 'info@example.com'
 # The path to your public ssh key, used by root
 ssh:
     key_location: '/keys/x.txt'
@@ -40,12 +44,14 @@ starters:
 
 ## new_server.py
 
-| Required Fields | |
-| --- | --- |
-| hostname |  |
-| ssh.key_location | ssh.key_passphrase also required if key has one |
-| sudo.username, sudo.password |  |
-| ufw.incoming, ufw.outgoing |  |
+| Required Fields              |                                                 |
+| ---------------------------- | ----------------------------------------------- |
+| hostname                     |                                                 |
+| domain                       | Required if any of the starters require it      |
+| email                        | Required if any of the starters require it      |
+| ssh.key_location             | ssh.key_passphrase also required if key has one |
+| sudo.username, sudo.password |                                                 |
+| ufw.incoming, ufw.outgoing   |                                                 |
 
 Configures a server for first time setup. This script will:
 
@@ -58,11 +64,13 @@ The configuration is specified in config.yml:
 
 ## add_starter.py
 
-| Required Fields | |
-| --- | --- |
-| hostname |  |
-| ssh.key_location | ssh.key_passphrase also required if key has one |
-| sudo.username | Required for starters that substitute the sudo username into their commands |
+| Required Fields  |                                                                             |
+| ---------------- | --------------------------------------------------------------------------- |
+| hostname         |                                                                             |
+| domain           | Required if the starter requires it                                         |
+| email            | Required if the starter requires it                                         |
+| ssh.key_location | ssh.key_passphrase also required if key has one                             |
+| sudo.username    | Required for starters that substitute the sudo username into their commands |
 
 Starters are sets of packages and commands that configure the server for a particular task. Starters are configured using YAML files in the [/starters/](/starters/) folder.
 
@@ -74,7 +82,7 @@ commands:
     - echo Hello, world!
 ```
 
-The packages will be installed using ```apt-get```, and then the commands will be run to set up the starter on the host.
+The packages will be installed using ```apt```, and then the commands will be run to set up the starter on the host. The commands may include $SUDO_USER and $DOMAIN template fields which will take input from the config file.
 
 The name of the starter is passed to the script when it is run. The name must match the file name without it's .yml extension:
 

@@ -1,7 +1,7 @@
 from server_util import *
 import yaml
 
-def setup_server():    
+def setup_server():
     config = get_config()
     commands = []
 
@@ -21,6 +21,9 @@ def setup_server():
     if (starters != None):
         for start_commands in list(map(lambda name: starter_commands(name, config), starters)):
             commands += start_commands
+
+    # Reboot command
+    commands.append('reboot -f > /dev/null 2>&1 &')
 
     # Run commands
     ssh_config = config[SSH_FIELD]

@@ -1,14 +1,14 @@
-hostname: "000.000.000.000"
-domain: "example.com"
-email: "info@example.com"
+hostname: '000.000.000.000'
+domain: 'example.com'
+email: 'info@example.com'
 ssh:
-  key_location: "private_key.txt"
-  key_passphrase: ""
+  key_location: 'private_key.txt'
+  key_passphrase: ''
 sudo:
-  username: ""
-  password: ""
+  username: ''
+  password: ''
 ufw:
-  incoming: "deny"
-  outgoing: "allow"
+  incoming: 'deny'
+  outgoing: 'allow'
 starters:
   -
